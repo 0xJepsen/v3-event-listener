@@ -1,33 +1,38 @@
-#![allow(clippy::useless_attribute)]
-#[allow(warnings)]
-use std::sync::Arc;
+// use bindings::rmm01_portfolio::rmm01_portfolio::RMM01Portfolio;
+use ethers::{prelude::*};
+use eyre::Result;
+use ethers::{prelude::*, providers::Provider};
+use std::{env::var_os, str::FromStr, sync::Arc};
 
-use ethers::providers::{Http, Provider};
-use tokio::join;
-#[allow(warnings)]
-use uniswap::{get_pool, Pool};
-use utils::chain_tools::get_provider;
+#[tokio::main]
+async fn main() -> Result<()> {
+    dotenv::dotenv().expect(".env file not found");
 
-#[allow(warnings)]
-pub mod error;
-pub mod uniswap;
+    let client = get_provider(RpcTypes::Goerli).await;
 
-#[deprecated(since = "0.0.1", note = "will be useful for actors in the future")]
-pub struct Clairvoyance {
-    pub provider: Arc<Provider<Http>>,
+    let test_client = client.get_block(80).await.unwrap().unwrap();
+    println!("Client Response block hash{:?}", test_client.state_root);
+
+    Ok(())
 }
-#[allow(warnings)]
-impl Clairvoyance {
-    pub async fn default() -> Self {
-        let provider = get_provider().await;
-        Self { provider }
-    }
 
-    pub async fn see(self, token0: &String, token1: &String, bp: &str) {
-        println!("Getting Pool...");
-        let pools: Vec<Pool> = vec![get_pool(token0, token1, bp, self.provider).await.unwrap()];
-        for mut pool in pools {
-            join!(pool.monitor_pool());
+#[derive(Debug, PartialEq)]
+pub enum RpcTypes {
+    Testnet,
+    Devnet,
+    Default,
+    Goerli,
+}
+
+pub async fn get_provider(rpc_type: RpcTypes) -> Arc<Provider<Http>> {
+    match rpc_type {
+        RpcTypes::Testnet => {
+            Arc::new(Provider::try_from("https://testnet.primitive.xyz/").unwrap())
         }
+        RpcTypes::Devnet => Arc::new(Provider::try_from("http://localhost:8545").unwrap()),
+        RpcTypes::Default => Provider::try_from(var_os("RPC_URL").unwrap().into_string().unwrap())
+            .unwrap()
+            .into(),
+        RpcTypes::Goerli => Arc::new(Provider::try_from("https://rpc.ankr.com/eth_goerli").unwrap()),
     }
 }

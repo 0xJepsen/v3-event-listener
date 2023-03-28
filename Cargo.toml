@@ -5,8 +5,15 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-# External
-tokio = { version = "1.17.0", features = ["macros"] }
+# Local Crates
+bindings = { path = "bindings/" }
+# utils = { path = "utils" }
+
+# External Crates
+tokio = { version = "1.17.0", features = ["full"] }
+futures = "0.3"
 eyre = "0.6.6"
 dotenv = "0.15.0"
-ethers = { git = "https://github.com/gakonst/ethers-rs" }
+ethers = "2.0.0"
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.68"

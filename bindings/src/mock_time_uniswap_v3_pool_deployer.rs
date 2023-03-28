@@ -46958,7 +46958,7 @@ pub mod mock_time_uniswap_v3_pool_deployer {
             Ok(deployer)
         }
         ///Calls the contract's `deploy` (0xfad5359f) function
-        pub fn deploy(
+        pub fn deploy_contract(
             &self,
             factory: ::ethers::core::types::Address,
             token_0: ::ethers::core::types::Address,
